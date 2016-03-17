@@ -48,25 +48,7 @@ public class GrouperUtil {
             if (groupDiff < minDiff){
                 minDiff = groupDiff;
                 bestGroup = groups;
-                new Thread(){
-                    @Override
-                    public void run(){
-                        System.out.println(printGroup() + minDiff + "\n");
-                        FileUtil.printToFile(bestGroup);
-                    }
-
-                    private String printGroup(){
-                        String s = "";
-                        for(ArrayList<Person> group : bestGroup){
-                            for(Person p : group){
-                                s += p.getName() + " ";
-                            }
-                            s += "\n";
-                        }
-
-                        return s;
-                    }
-                }.start();
+                printNewGrouping();
             }
 
             if(minDiff < THRESHOLD){
@@ -83,6 +65,28 @@ public class GrouperUtil {
         for (ArrayList<Person> g : groups) {
             groupGWA.add(Float.valueOf(this.aveAllGWA(g)));
         }
+    }
+
+    private void printNewGrouping(){
+        new Thread(){
+            @Override
+            public void run(){
+                System.out.println(printGroup() + minDiff + "\n");
+                FileUtil.printToFile(bestGroup);
+            }
+
+            private String printGroup(){
+                String s = "";
+                for(ArrayList<Person> group : bestGroup){
+                    for(Person p : group){
+                        s += p.getName() + " ";
+                    }
+                    s += "\n";
+                }
+
+                return s;
+            }
+        }.start();
     }
 
     private float getAbsDiff(ArrayList<Float> groupGWA, float aveGWA) {

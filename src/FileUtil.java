@@ -37,7 +37,7 @@ public abstract class FileUtil{
             Person[] arr = new Person[size];
 
             while ((string = reader.readLine()) != null) {
-                String[] arrstring = string.split(" ");
+                String[] arrstring = string.split(",");
                 float f = Float.parseFloat(arrstring[1]);
 
                 arr[i] = new Person(arrstring[0], f);
