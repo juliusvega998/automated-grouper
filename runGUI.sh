@@ -1,4 +1,4 @@
 javac src/*.java -d bin
 cd bin
-java menu.MainGUI
+java main.MainGUI
 cd ..

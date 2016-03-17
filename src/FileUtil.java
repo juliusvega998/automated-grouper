@@ -40,7 +40,7 @@ public abstract class FileUtil{
                 String[] arrstring = string.split(",");
                 float f = Float.parseFloat(arrstring[1]);
 
-                arr[i] = new Person(arrstring[0], f);
+                arr[i] = new Person(arrstring[0], f, arrstring[2]);
                 i++;
             }
 

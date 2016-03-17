@@ -5,10 +5,12 @@ import java.util.ArrayList;
 public class Person {
     private String name;
     private float gwa;
+    private String bloc;
 
-    public Person(String n, float f) {
+    public Person(String n, float f, String b) {
         this.name = n;
         this.gwa = f;
+        this.bloc = b;
     }
 
     public String getName() {
@@ -17,6 +19,10 @@ public class Person {
 
     public float getGWA() {
         return this.gwa;
+    }
+
+    public String getBloc(){
+        return this.bloc;
     }
 
     @Override
