@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
+import javax.swing.JOptionPane;
+
 import java.util.ArrayList;
 
 import actors.Person;
@@ -37,10 +39,10 @@ public abstract class FileUtil{
             Person[] arr = new Person[size];
 
             while ((string = reader.readLine()) != null) {
-                String[] arrstring = string.split(",");
-                float f = Float.parseFloat(arrstring[1]);
+                String[] tokens = string.split(",");
+                float f = Float.parseFloat(tokens[1]);
 
-                arr[i] = new Person(arrstring[0], f, arrstring[2]);
+                arr[i] = new Person(tokens[0], f, tokens[2]);
                 i++;
             }
 
@@ -48,12 +50,12 @@ public abstract class FileUtil{
         }
         catch(IndexOutOfBoundsException i){
             i.printStackTrace();
-            System.out.println("Wrong format on file " + file.getFileName() + ".");
-            JOptionPane.showMessageDialog(null, "Wrong format on file " + file.getFileName() + ".");
+            System.out.println("Wrong format on file " + file.getName() + ".");
+            JOptionPane.showMessageDialog(null, "Wrong format on file " + file.getName() + ".");
         }
         catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println("\nFile \""+file.getFileName()+"\" not found!");
+            System.out.println("\nFile \""+file.getName()+"\" not found!");
             System.exit(1);
         }
 

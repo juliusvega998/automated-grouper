@@ -10,9 +10,12 @@ import java.awt.event.*;
 import java.util.Vector;
 import java.util.ArrayList;
 
-import main.gui.UneditableTableModel;
 import utilities.FileUtil;
 import utilities.GrouperUtil;
+
+import main.gui.UneditableTableModel;
+import main.gui.LoadingFrame;
+
 import actors.Person;
 
 import java.io.File;
@@ -40,7 +43,10 @@ public class MainGUI{
 	private Person[] arr;
 	private ArrayList<ArrayList<Person>> bestGroup;
 
+	private LoadingFrame loading;
+
 	public MainGUI(){
+		this.loading = new LoadingFrame();
 		this.frame = new JFrame("Automatic Grouper");
 		this.file = new JButton("Input file...");
 		this.group = new JButton("Group them!");
@@ -101,9 +107,11 @@ public class MainGUI{
 				groupNumText.setEnabled(false);
 				group.setEnabled(false);
 
-				bestGroup = grouper.automatedGrouping();
 
-				//show loading frame
+				loading.setVisible(true);
+
+				bestGroup = grouper.automatedGrouping();
+				loading.setVisible(false);
 
 				outFileText.setEnabled(true);
 				groupNumText.setEnabled(true);

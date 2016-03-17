@@ -31,6 +31,6 @@ public class MainNoGUI {
         System.out.println("\nTime taken: " + ((double)System.currentTimeMillis() - d)/1000.0 + " seconds");
         System.out.println();
 
-        FileUtil.printToFile(group);
+        FileUtil.printToFile(group, "groupings.out");
     }
 }
