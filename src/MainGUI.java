@@ -5,31 +5,125 @@ import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.*;
+import java.awt.event.*;
+
 import java.util.Vector;
+import java.util.ArrayList;
 
 import main.gui.UneditableTableModel;
+import utilities.FileUtil;
+import utilities.GrouperUtil;
+import actors.Person;
+
+import java.io.File;
 
 public class MainGUI{
 	public static final int WIN_WIDTH = 800;
 	public static final int WIN_HEIGHT = 600;
-	
+
 	public static final int BUTT_WIDTH = 150;
 	public static final int BUTT_HEIGHT = 30;
 
 	private JFrame frame;
-	private JButton file = new JButton("Input file...");
-	private JButton group = new JButton("Group them!");
-	private JButton about = new JButton("About us");
+	private JButton file;
+	private JButton group;
+	private JButton about;
 
-	private JTextField outFileText = new JTextField(15);
+	private JTextField outFileText;
+	private JTextField groupNumText;
+
+	private JTable personTable;
+	private JTable groupTable;
+
+	private JFileChooser fileChooser;
+
+	private Person[] arr;
+	private ArrayList<ArrayList<Person>> bestGroup;
 
 	public MainGUI(){
-		frame = new JFrame("Automatic Grouper");
+		this.frame = new JFrame("Automatic Grouper");
+		this.file = new JButton("Input file...");
+		this.group = new JButton("Group them!");
+		this.about = new JButton("About us");
+		this.outFileText = new JTextField(15);
+		this.groupNumText = new JTextField();
+		this.fileChooser = new JFileChooser();
+		this.arr = null;
+		this.personTable = null;
+		this.groupTable = null;
 
-		frame.setSize(WIN_WIDTH, WIN_HEIGHT);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(this.addToFrame());
-		frame.setVisible(true);
+		outFileText.setEnabled(false);
+		groupNumText.setEnabled(false);
+		group.setEnabled(false);
+
+		ActionListener aboutAction = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				JOptionPane.showMessageDialog(frame, 
+						"Author: Julius Jireh B. Vega",
+						"About us", JOptionPane.PLAIN_MESSAGE);
+			}
+		};
+
+		ActionListener fileAction = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				if(fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
+					try{
+						File file = fileChooser.getSelectedFile();
+						arr = FileUtil.addToArray(file);
+						personTable.setModel(createPersonModel(arr));
+					} catch(Exception ex) {
+						return;
+					}
+
+					outFileText.setEnabled(true);
+					groupNumText.setEnabled(true);
+					group.setEnabled(true);
+				}
+			}
+		};
+
+		ActionListener groupAction = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				int nGroups = 1;	
+				try{
+					nGroups = Integer.parseInt(groupNumText.getText());
+				} catch(Exception ex) {
+					JOptionPane.showMessageDialog(frame, "Please enter the number of groups to make!");
+					return;
+				}
+
+				GrouperUtil grouper = new GrouperUtil(arr, nGroups);
+
+				outFileText.setEnabled(false);
+				groupNumText.setEnabled(false);
+				group.setEnabled(false);
+
+				bestGroup = grouper.automatedGrouping();
+
+				//show loading frame
+
+				outFileText.setEnabled(true);
+				groupNumText.setEnabled(true);
+				group.setEnabled(true);
+
+				JOptionPane.showMessageDialog(frame, "Found best group!");
+
+				setGroupModel(bestGroup);
+			}
+		};
+
+		about.addActionListener(aboutAction);
+		file.addActionListener(fileAction);
+		group.addActionListener(groupAction);
+
+		this.frame.setSize(WIN_WIDTH, WIN_HEIGHT);
+		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.frame.add(this.addToFrame());
+		this.frame.setLocationRelativeTo(null);
+		this.frame.setVisible(true);
 	}
 
 	private JPanel addToFrame(){
@@ -75,15 +169,14 @@ public class MainGUI{
 	}
 
 	private JTable createPersonTable(){
-		JTable table;
 		JScrollPane scrollPane;
 		
-		table = new JTable(createPersonModel());
-		scrollPane = new JScrollPane(table);
-		table.setFillsViewportHeight(true);
-		table.setEnabled(false);
+		personTable = new JTable(createPersonModel());
+		scrollPane = new JScrollPane(personTable);
+		personTable.setFillsViewportHeight(true);
+		personTable.setEnabled(false);
 
-		return table;
+		return personTable;
 	}
 
 	private DefaultTableModel createPersonModel(){
@@ -106,16 +199,38 @@ public class MainGUI{
 		return model;
 	}
 
+	private DefaultTableModel createPersonModel(Person[] arr){
+		DefaultTableModel model;
+		Vector<String> column = new Vector<String>();
+		Vector<Vector<String>> data = new Vector<Vector<String>>();
+
+		column.add("Name");
+		column.add("Grade");
+		column.add("Bloc");
+
+		for(Person p : arr){
+			Vector<String> dataRow = new Vector<String>();
+
+			dataRow.add(p.getName());
+			dataRow.add(Float.toString(p.getGWA()));
+			dataRow.add(p.getBloc());
+			data.add(dataRow);
+		}
+
+		model = new UneditableTableModel(data, column);
+
+		return model;
+	}
+
 	private JTable createGroupTable(){
-		JTable table;
 		JScrollPane scrollPane;
 		
-		table = new JTable(this.createGroupModel());
-		scrollPane = new JScrollPane(table);
-		table.setFillsViewportHeight(true);
-		table.setEnabled(false);
+		groupTable = new JTable(this.createGroupModel());
+		scrollPane = new JScrollPane(groupTable);
+		groupTable.setFillsViewportHeight(true);
+		groupTable.setEnabled(false);
 
-		return table;
+		return groupTable;
 	}
 
 	private DefaultTableModel createGroupModel(){
@@ -136,15 +251,44 @@ public class MainGUI{
 		return model;
 	}
 
+	public void setGroupModel(ArrayList<ArrayList<Person>> group){
+		DefaultTableModel model;
+		Vector<String> column = new Vector<String>();
+		Vector<Vector<String>> data = new Vector<Vector<String>>();
+		int i=1;
+
+		column.add("Name");
+		column.add("Group");
+
+		for(ArrayList<Person> l : group){
+			for(Person p : l){
+				Vector<String> dataRow = new Vector<String>();
+				dataRow.add(p.getName());
+				dataRow.add(Integer.toString(i));
+				data.add(dataRow);
+			}
+			i++;
+		}
+
+		model = new UneditableTableModel(data, column);
+		groupTable.setModel(model);
+	}
+
 	private JPanel addNavigation(){
 		JPanel panel = new JPanel();
 		JPanel centerPanel = new JPanel();
+		JPanel aboutPanel = new JPanel();
+		JPanel groupPanel = new JPanel();
+		JPanel filePanel = new JPanel();
+		JPanel outPanel = new JPanel();
+
 		GridBagConstraints constraints;
 
 		file.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
 		group.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
 		about.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
 		outFileText.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
+		groupNumText.setPreferredSize(new Dimension(BUTT_WIDTH/2, BUTT_HEIGHT));
 
 		panel.setLayout(new BorderLayout());
 		centerPanel.setLayout(new GridBagLayout());
@@ -152,32 +296,39 @@ public class MainGUI{
 		constraints.insets = new Insets(5,5,5,5);
 		constraints.anchor = GridBagConstraints.NORTH;
 
-		constraints.weightx = 1;
-		constraints.weighty = 0;
-		constraints.gridx = 0;
-		constraints.gridy = 0;
-		centerPanel.add(file, constraints);
+		filePanel.add(file);
+		panel.add(filePanel, BorderLayout.PAGE_START);
 
+		groupPanel.setLayout(new BorderLayout());
+		groupPanel.add(new JLabel("Groups of: "), BorderLayout.LINE_START);
+		groupPanel.add(groupNumText, BorderLayout.CENTER);
+
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.weightx = 1;
-		constraints.weighty = 0;
-		constraints.gridx = 0;
+		constraints.weighty = 0.25;
 		constraints.gridy = 1;
+		centerPanel.add(Box.createGlue(), constraints);
+
+		outPanel.setLayout(new BorderLayout());
+		outPanel.add(new JLabel("Output filename: "), BorderLayout.LINE_START);
+		outPanel.add(outFileText, BorderLayout.CENTER);
+
+		constraints.gridy = 2;
+		constraints.weighty = 0.0;
+		centerPanel.add(groupPanel, constraints);
+
+		constraints.gridy = 3;
+		centerPanel.add(outPanel, constraints);
+
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.weighty = 0.75;
+		constraints.gridy = 4;
 		centerPanel.add(group, constraints);
 
-		constraints.weightx = 1;
-		constraints.weighty = 0;
-		constraints.gridx = 0;
-		constraints.gridy = 2;
-		centerPanel.add(new JLabel("Output filename: "), constraints);
-
-		constraints.weightx = 1;
-		constraints.weighty = 1;
-		constraints.gridx = 0;
-		constraints.gridy = 3;
-		centerPanel.add(outFileText, constraints);
+		aboutPanel.add(about);
 
 		panel.add(centerPanel, BorderLayout.CENTER);
-		panel.add(about, BorderLayout.PAGE_END);
+		panel.add(aboutPanel, BorderLayout.PAGE_END);
 
 		return panel;
 	}

@@ -3,6 +3,8 @@ package main;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import java.io.File;
+
 import actors.Person;
 import utilities.FileUtil;
 import utilities.GrouperUtil;
@@ -14,7 +16,7 @@ public class MainNoGUI {
 
         System.out.println("THRESHOLD set to " + GrouperUtil.THRESHOLD);
 
-        arr = FileUtil.addToArray();
+        arr = FileUtil.addToArray(new File("input.in"));
 
         System.out.println("How many groups? (Max of " + arr.length + ") ");
         int n = sc.nextInt();

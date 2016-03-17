@@ -20,13 +20,23 @@ public class GrouperUtil {
     private Person[] a;
     private int grouping;
     private float minDiff;
+    private String outFile;
     private ArrayList<ArrayList<Person>> bestGroup;
 
     public GrouperUtil(Person[] arr, int n) {
         this.a = arr;
         this.grouping = n;
-        minDiff = 999999999;
-        bestGroup = new ArrayList<ArrayList<Person>>();
+        this.minDiff = 999999999;
+        this.outFile = "groupings.out";
+        this.bestGroup = new ArrayList<ArrayList<Person>>();
+    }
+
+    public GrouperUtil(Person[] arr, int n, String outFile) {
+        this.a = arr;
+        this.grouping = n;
+        this.minDiff = 999999999;
+        this.outFile = outFile;
+        this.bestGroup = new ArrayList<ArrayList<Person>>();
     }
 
     public ArrayList<ArrayList<Person>> automatedGrouping() {
@@ -72,7 +82,7 @@ public class GrouperUtil {
             @Override
             public void run(){
                 System.out.println(printGroup() + minDiff + "\n");
-                FileUtil.printToFile(bestGroup);
+                FileUtil.printToFile(bestGroup, outFile);
             }
 
             private String printGroup(){

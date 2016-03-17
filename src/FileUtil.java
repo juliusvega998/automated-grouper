@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import actors.Person;
 
 public abstract class FileUtil{
-	public static void printToFile(ArrayList<ArrayList<Person>> group){
+	public static void printToFile(ArrayList<ArrayList<Person>> group, String outFile){
         try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("groupings.out")));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outFile)));
 
             writer.write(Person.groupToString(group));
             writer.close();
@@ -24,10 +24,10 @@ public abstract class FileUtil{
         }
     }
 
-    public static Person[] addToArray() {
+    public static Person[] addToArray(File file) {
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader(new File("input.in")));
+            reader = new BufferedReader(new FileReader(file));
             System.out.println("Reading from file \"input.in\"");
 
             String string = null;
@@ -46,9 +46,14 @@ public abstract class FileUtil{
 
             return arr;
         }
+        catch(IndexOutOfBoundsException i){
+            i.printStackTrace();
+            System.out.println("Wrong format on file " + file.getFileName() + ".");
+            JOptionPane.showMessageDialog(null, "Wrong format on file " + file.getFileName() + ".");
+        }
         catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println("\nFile \"input.in\" not found!");
+            System.out.println("\nFile \""+file.getFileName()+"\" not found!");
             System.exit(1);
         }
 
