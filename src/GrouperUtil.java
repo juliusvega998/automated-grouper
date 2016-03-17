@@ -1,10 +1,18 @@
-import java.io.*;
+package utilities;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class Grouper {
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+
+import actors.Person;
+
+public class GrouperUtil {
     public static final double THRESHOLD = getThreshold();
     public static final String CONFIG_FILE = "config.cfg";
     private static final double THRESHOLD_DEFAULT = 0.1;
@@ -14,7 +22,7 @@ public class Grouper {
     private float minDiff;
     private ArrayList<ArrayList<Person>> bestGroup;
 
-    public Grouper(Person[] arr, int n) {
+    public GrouperUtil(Person[] arr, int n) {
         this.a = arr;
         this.grouping = n;
         minDiff = 999999999;
@@ -44,7 +52,7 @@ public class Grouper {
                     @Override
                     public void run(){
                         System.out.println(printGroup() + minDiff + "\n");
-                        Main.printToFile(bestGroup);
+                        FileUtil.printToFile(bestGroup);
                     }
 
                     private String printGroup(){

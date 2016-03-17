@@ -1,6 +1,9 @@
 /* code from http://stackoverflow.com/questions/2799078/ */
+package utilities;
 
 import java.util.Arrays;
+
+import actors.Person;
 
 public class PermUtil <T> {
     private T[] arr;

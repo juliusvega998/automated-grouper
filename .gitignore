@@ -1,6 +1,4 @@
 *.in
 *.txt
 *.out
-bin/*.in
-bin/*.txt
-bin/*.out
+bin/*
