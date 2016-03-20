@@ -3,6 +3,7 @@ package utilities;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.HashMap;
 
 import java.io.File;
 import java.io.BufferedReader;
@@ -13,22 +14,25 @@ import java.io.FileWriter;
 import actors.Person;
 
 public class GrouperUtil {
-    public static final double THRESHOLD = getThreshold();
     public static final String CONFIG_FILE = "config.cfg";
-    private static final double THRESHOLD_DEFAULT = 0.1;
+    public static final String DEF_OUT_FILE = "groupings.out";
+    public static final double THRESHOLD = getThreshold();
+    public static final double THRESHOLD_DEFAULT = 0.1;
     
     private Person[] a;
     private int grouping;
     private float minDiff;
     private String outFile;
     private ArrayList<ArrayList<Person>> bestGroup;
+    private HashMap<String, Integer> bloclist;
 
     public GrouperUtil(Person[] arr, int n) {
         this.a = arr;
         this.grouping = n;
         this.minDiff = 999999999;
-        this.outFile = "groupings.out";
+        this.outFile = DEF_OUT_FILE;
         this.bestGroup = new ArrayList<ArrayList<Person>>();
+        this.initBloclist();
     }
 
     public GrouperUtil(Person[] arr, int n, String outFile) {
@@ -37,6 +41,7 @@ public class GrouperUtil {
         this.minDiff = 999999999;
         this.outFile = outFile;
         this.bestGroup = new ArrayList<ArrayList<Person>>();
+        this.initBloclist();
     }
 
     public ArrayList<ArrayList<Person>> automatedGrouping() {
@@ -49,6 +54,8 @@ public class GrouperUtil {
         while((combi = perm.next()) != null) {
             ArrayList<ArrayList<Person>> groups = new ArrayList<ArrayList<Person>>();
             ArrayList<Float> groupGWA = new ArrayList<Float>();
+
+            clearBloc();
 
             intoGroups(groups, combi, this.grouping);
             aveGWAPerGroup(groupGWA, groups);
@@ -73,7 +80,7 @@ public class GrouperUtil {
 
     private void aveGWAPerGroup(ArrayList<Float> groupGWA, ArrayList<ArrayList<Person>> groups) {
         for (ArrayList<Person> g : groups) {
-            groupGWA.add(Float.valueOf(this.aveAllGWA(g)));
+            groupGWA.add(this.aveAllGWA(g));
         }
     }
 
@@ -109,7 +116,8 @@ public class GrouperUtil {
         return sumOfDiff;
     }
 
-    private void intoGroups(ArrayList<ArrayList<Person>> groups, Person[] list, int grouping) {
+    private void intoGroups(ArrayList<ArrayList<Person>> groups, 
+            Person[] list, int grouping) {
         for (int i=0; i<grouping; i++)
             groups.add(new ArrayList<Person>());
 
@@ -119,10 +127,17 @@ public class GrouperUtil {
 
     private float aveAllGWA(Person[] list) {
         float sumGWA = 0.0f;
+        int maxBlocFreq = 0;
+
         for (Person p : list) {
             sumGWA += p.getGWA();
+
+            this.bloclist.put(p.getBloc(), this.bloclist.get(p.getBloc())+1);
+            if(maxBlocFreq < this.bloclist.get(p.getBloc())){
+                maxBlocFreq = this.bloclist.get(p.getBloc());
+            }
         }
-        return sumGWA / list.length;
+        return (sumGWA / list.length)*maxBlocFreq;
     }
 
     private float aveAllGWA(ArrayList<Person> list) {
@@ -133,14 +148,31 @@ public class GrouperUtil {
         return sumGWA / list.size();
     }
 
+    private void initBloclist(){
+        this.bloclist = new HashMap<String, Integer>();
+
+        for(Person p : this.a){
+            if(!bloclist.containsKey(p.getBloc())){
+                this.bloclist.put(p.getBloc(), 0);
+            }
+        }
+    }
+
+    private void clearBloc(){
+        for(String k : this.bloclist.keySet()){
+            this.bloclist.put(k, 0);
+        }
+    }
+
     public static double getThreshold(){
+        File file = new File(CONFIG_FILE);
         try{
-            BufferedReader reader = new BufferedReader(new FileReader(new File(CONFIG_FILE)));
+            BufferedReader reader = new BufferedReader(new FileReader(file));
             return Double.parseDouble(reader.readLine());
         }
         catch (Exception e) {
             try{
-                BufferedWriter writer = new BufferedWriter(new FileWriter(new File(CONFIG_FILE)));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 
                 writer.write(Double.toString(THRESHOLD_DEFAULT));
                 writer.close();

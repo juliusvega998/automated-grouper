@@ -121,7 +121,7 @@ public class MainGUI{
 		this.addPerson = new JButton("Add a Person");
 
 		this.groupNumText = new JTextField(5);
-		this.fileChooser = new JFileChooser();
+		this.fileChooser = new JFileChooser(".");
 
 		this.arr = null;
 		this.personTable = null;
