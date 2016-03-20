@@ -2,7 +2,7 @@
 Author: Julius Jireh B. Vega  
 
 ##Prerequisites:
-* Java JRE 7  
+* Java JRE 7 or higher  
 
 ##To run:  
 ```
