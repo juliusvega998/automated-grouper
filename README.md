@@ -25,4 +25,7 @@ John Paul,0.75,3
 Jennifer,0.90,2
 ```
 
+##Config file
+The jar file will create a config.cfg. This file include the threshold that a program should consider.  
+
 *Last Updated: March 20, 2016*
