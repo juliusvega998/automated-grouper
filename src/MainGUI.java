@@ -355,6 +355,7 @@ public class MainGUI{
 		JPanel centerPanel = new JPanel();
 		JPanel aboutPanel = new JPanel();
 		JPanel groupPanel = new JPanel();
+		JPanel threshPanel = new JPanel();
 
 		GridBagConstraints constraints;
 
@@ -368,6 +369,11 @@ public class MainGUI{
 		groupPanel.add(new JLabel("Number of groups: "), BorderLayout.LINE_START);
 		groupPanel.add(groupNumText, BorderLayout.CENTER);
 
+		threshPanel.setLayout(new BorderLayout());
+		threshPanel.add(new JLabel("Threshold:"), BorderLayout.CENTER);
+		threshPanel.add(new JLabel(Double.toString(GrouperUtil.THRESHOLD)), 
+				BorderLayout.LINE_END);
+
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.weightx = 1;
 		constraints.weighty = 0.25;
@@ -378,9 +384,13 @@ public class MainGUI{
 		constraints.weighty = 0.0;
 		centerPanel.add(groupPanel, constraints);
 
+		constraints.gridy = 3;
+		constraints.weighty = 0.0;
+		centerPanel.add(threshPanel, constraints);
+
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.weighty = 0.75;
-		constraints.gridy = 3;
+		constraints.gridy = 4;
 		centerPanel.add(group, constraints);
 
 		aboutPanel.add(about);
