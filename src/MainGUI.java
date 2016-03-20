@@ -5,9 +5,6 @@ import actors.Person;
 import java.awt.*;
 import java.awt.event.*;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-
 import java.io.File;
 
 import javax.swing.*;
@@ -21,6 +18,7 @@ import java.util.ArrayList;
 import main.gui.UneditableTableModel;
 import main.gui.AddPersonFrame;
 import main.gui.LoadingThread;
+import main.gui.GroupButtAction;
 
 import utilities.FileUtil;
 import utilities.GrouperUtil;
@@ -44,6 +42,7 @@ public class MainGUI{
 	private JButton group;
 	private JButton about;
 	private JButton addPerson;
+	private JButton cancel;
 
 	private JLabel loading;
 
@@ -56,6 +55,7 @@ public class MainGUI{
 
 	private Person[] arr;
 	private ArrayList<ArrayList<Person>> bestGroup;
+	private SwingWorker<Void, Void> worker;
 
 	public MainGUI(){
 		ActionListener aboutAction = new ActionListener(){
@@ -63,7 +63,7 @@ public class MainGUI{
 			public void actionPerformed(ActionEvent e){
 				JOptionPane.showMessageDialog(frame, 
 						"Author: Julius Jireh B. Vega\n" + 
-						"Created for the ACSS-UPLB",
+						"Created for ACSS-UPLB",
 						"About us", JOptionPane.PLAIN_MESSAGE);
 			}
 		};
@@ -86,67 +86,19 @@ public class MainGUI{
 			}
 		};
 
-		ActionListener groupAction = new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e){
-				final GrouperUtil grouper;
-				final LoadingThread loaderLoop = new LoadingThread(loading);
-
-				SwingWorker<Void, Void> worker;
-				int nGroups = 1;
-
-				try{
-					nGroups = Integer.parseInt(groupNumText.getText());
-				} catch(Exception ex) {
-					JOptionPane.showMessageDialog(frame, 
-							"Please enter the number of groups to make!");
-					return;
-				}
-
-				grouper = new GrouperUtil(arr, nGroups);
-
-				worker = new SwingWorker<Void, Void>(){
-					@Override
-					protected Void doInBackground() throws Exception{
-						frame.setTitle(WIN_TITLE + " - Finding best group...");
-						switchAllComp(false);
-						loaderLoop.start();
-						grouper.automatedGrouping();
-						return null;
-					}
-
-					@Override
-					public void done(){
-						frame.toFront();
-						frame.setTitle(WIN_TITLE);
-
-						loaderLoop.terminate();
-
-						bestGroup = grouper.getBestGroup();
-						switchAllComp(true);
-						
-						JOptionPane.showMessageDialog(frame, 
-								"Found best group!\n" + 
-								"Output saved to \"groupings.out\"");
-						setGroupModel(bestGroup);
-					}
-
-					public void switchAllComp(boolean flag){
-						groupNumText.setEnabled(flag);
-						group.setEnabled(flag);
-						file.setEnabled(flag);
-						addPerson.setEnabled(flag);
-					}
-				};
-
-				worker.execute();
-			}
-		};
+		GroupButtAction groupAction = new GroupButtAction(this);
 
 		ActionListener addPersonAction = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
 				apFrame.setVisible(true);
+			}
+		};
+
+		ActionListener cancelAction = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				worker.cancel(true);
 			}
 		};
 
@@ -156,6 +108,7 @@ public class MainGUI{
 		this.group = new JButton("Group them!");
 		this.about = new JButton("About us");
 		this.addPerson = new JButton("Add a Person");
+		this.cancel = new JButton("Cancel Search");
 
 		this.loading = new JLabel();
 
@@ -166,10 +119,12 @@ public class MainGUI{
 		this.personTable = null;
 		this.groupTable = null;
 
-		file.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
-		group.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
-		about.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
-		groupNumText.setPreferredSize(new Dimension(BUTT_WIDTH/2, BUTT_HEIGHT));
+		this.file.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
+		this.group.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
+		this.about.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
+		this.cancel.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
+		this.groupNumText.setPreferredSize(new Dimension(BUTT_WIDTH/2, 
+				BUTT_HEIGHT));
 
 		this.switchComp(false);
 
@@ -177,6 +132,7 @@ public class MainGUI{
 		this.file.addActionListener(fileAction);
 		this.group.addActionListener(groupAction);
 		this.addPerson.addActionListener(addPersonAction);
+		this.cancel.addActionListener(cancelAction);
 
 		this.frame.setSize(WIN_WIDTH, WIN_HEIGHT);
 		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -386,6 +342,8 @@ public class MainGUI{
 
 		GridBagConstraints constraints;
 
+		cancel.setEnabled(false);
+
 		panel.setLayout(new BorderLayout());
 		centerPanel.setLayout(new GridBagLayout());
 		constraints = new GridBagConstraints();
@@ -421,9 +379,13 @@ public class MainGUI{
 		constraints.gridy = 4;
 		centerPanel.add(group, constraints);
 
+		constraints.weighty = 0;
+		constraints.gridy = 5;
+		centerPanel.add(cancel, constraints);
+
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.weighty = 0.75;
-		constraints.gridy = 5;
+		constraints.gridy = 6;
 		centerPanel.add(loading, constraints);
 
 		aboutPanel.add(about);
@@ -440,6 +402,7 @@ public class MainGUI{
 	}
 
 
+
 	public static void main(String[] args){
 		SwingUtilities.invokeLater(new Runnable(){
 			@Override
@@ -447,5 +410,53 @@ public class MainGUI{
 				new MainGUI();
 			}
 		});
+	}
+
+	public JTextField getGroupNumText(){
+		return this.groupNumText;
+	}
+
+	public JLabel getLoading(){
+		return this.loading;
+	}
+
+	public Person[] getArr(){
+		return this.arr;
+	}
+
+	public JFrame getFrame(){
+		return this.frame;
+	}
+
+	public ArrayList<ArrayList<Person>> getBestGroup(){
+		return this.bestGroup;
+	}
+
+	public JButton getFile(){
+		return this.file;
+	}
+
+	public JButton getGroup(){
+		return this.group;
+	}
+
+	public JButton getAddPerson(){
+		return this.addPerson;
+	}
+
+	public JButton getCancel(){
+		return this.cancel;
+	}
+
+	public SwingWorker<Void, Void> getWorker(){
+		return this.worker;
+	}
+	
+	public void setBestGroup(ArrayList<ArrayList<Person>> group){
+		this.bestGroup = group;
+	}
+
+	public void setWorker(SwingWorker<Void, Void> worker){
+		this.worker = worker;
 	}
 }
