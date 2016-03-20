@@ -1,24 +1,29 @@
 package main;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
+import actors.Person;
 
 import java.awt.*;
 import java.awt.event.*;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+
+import java.io.File;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
+
 import java.util.Vector;
 import java.util.ArrayList;
 
-import utilities.FileUtil;
-import utilities.GrouperUtil;
-
 import main.gui.UneditableTableModel;
 import main.gui.AddPersonFrame;
+import main.gui.LoadingThread;
 
-import actors.Person;
-
-import java.io.File;
+import utilities.FileUtil;
+import utilities.GrouperUtil;
 
 public class MainGUI{
 	public static final int WIN_WIDTH = 800;
@@ -30,15 +35,17 @@ public class MainGUI{
 	public static final int LOAD_WIDTH = 300;
 	public static final int LOAD_HEIGHT = 150;
 
-	private JFrame frame;
-	private JFrame load;
+	public static final String WIN_TITLE = "Automatic Grouper";
 
+	private JFrame frame;
 	private AddPersonFrame apFrame;
 
 	private JButton file;
 	private JButton group;
 	private JButton about;
 	private JButton addPerson;
+
+	private JLabel loading;
 
 	private JTextField groupNumText;
 
@@ -55,7 +62,8 @@ public class MainGUI{
 			@Override
 			public void actionPerformed(ActionEvent e){
 				JOptionPane.showMessageDialog(frame, 
-						"Author: Julius Jireh B. Vega\nCreated for the ACSS-UPLB",
+						"Author: Julius Jireh B. Vega\n" + 
+						"Created for the ACSS-UPLB",
 						"About us", JOptionPane.PLAIN_MESSAGE);
 			}
 		};
@@ -63,7 +71,8 @@ public class MainGUI{
 		ActionListener fileAction = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				if(fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
+				if(fileChooser.showOpenDialog(frame) == 
+						JFileChooser.APPROVE_OPTION){
 					try{
 						File file = fileChooser.getSelectedFile();
 						arr = FileUtil.addToArray(file);
@@ -80,7 +89,10 @@ public class MainGUI{
 		ActionListener groupAction = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				GrouperUtil grouper;
+				final GrouperUtil grouper;
+				final LoadingThread loaderLoop = new LoadingThread(loading);
+
+				SwingWorker<Void, Void> worker;
 				int nGroups = 1;
 
 				try{
@@ -91,18 +103,43 @@ public class MainGUI{
 					return;
 				}
 
-				switchComp(false);
-
-				load.setVisible(true);
 				grouper = new GrouperUtil(arr, nGroups);
-				bestGroup = grouper.automatedGrouping();
-				load.setVisible(false);
 
-				switchComp(true);
+				worker = new SwingWorker<Void, Void>(){
+					@Override
+					protected Void doInBackground() throws Exception{
+						frame.setTitle(WIN_TITLE + " - Finding best group...");
+						switchAllComp(false);
+						loaderLoop.start();
+						grouper.automatedGrouping();
+						return null;
+					}
 
-				JOptionPane.showMessageDialog(frame, "Found best group! " + 
-						"Output saved to \"groupings.out\"");
-				setGroupModel(bestGroup);
+					@Override
+					public void done(){
+						frame.toFront();
+						frame.setTitle(WIN_TITLE);
+
+						loaderLoop.terminate();
+
+						bestGroup = grouper.getBestGroup();
+						switchAllComp(true);
+						
+						JOptionPane.showMessageDialog(frame, 
+								"Found best group!\n" + 
+								"Output saved to \"groupings.out\"");
+						setGroupModel(bestGroup);
+					}
+
+					public void switchAllComp(boolean flag){
+						groupNumText.setEnabled(flag);
+						group.setEnabled(flag);
+						file.setEnabled(flag);
+						addPerson.setEnabled(flag);
+					}
+				};
+
+				worker.execute();
 			}
 		};
 
@@ -113,12 +150,14 @@ public class MainGUI{
 			}
 		};
 
-		this.frame = new JFrame("Automatic Grouper");
+		this.frame = new JFrame(WIN_TITLE);
 
 		this.file = new JButton("Input file...");
 		this.group = new JButton("Group them!");
 		this.about = new JButton("About us");
 		this.addPerson = new JButton("Add a Person");
+
+		this.loading = new JLabel();
 
 		this.groupNumText = new JTextField(5);
 		this.fileChooser = new JFileChooser(".");
@@ -145,7 +184,6 @@ public class MainGUI{
 		this.frame.setLocationRelativeTo(null);
 		this.frame.setVisible(true);
 
-		this.initLoadFrame();
 		this.initAPFrame();
 	}
 
@@ -178,18 +216,6 @@ public class MainGUI{
 		});
 	}
 
-	private void initLoadFrame(){
-		JPanel panel = new JPanel();
-
-		this.load = new JFrame("Loading...");
-		panel.add(new JLabel("Finding the best groupings..."));
-		this.load.add(panel, SwingConstants.CENTER);
-
-		this.load.pack();
-		this.load.setLocationRelativeTo(null);
-		//this.load.setVisible(true);
-	}
-
 	private JPanel addToFrame(){
 		JPanel panel = new JPanel();
 		JPanel personPanel = new JPanel();
@@ -199,7 +225,8 @@ public class MainGUI{
 		panel.setLayout(new GridLayout(1, 3, 10, 10));
 
 		personPanel.setLayout(new BorderLayout());
-		personTablePanel = addGridBagPanel("Person Info: ", createPersonTable());
+		personTablePanel = addGridBagPanel("Person Info: ", 
+				createPersonTable());
 		personPanel.add(personTablePanel, BorderLayout.CENTER);
 
 		filePanel.setLayout(new GridLayout(2, 1, 3, 3));
@@ -366,7 +393,8 @@ public class MainGUI{
 		constraints.anchor = GridBagConstraints.NORTH;
 
 		groupPanel.setLayout(new BorderLayout());
-		groupPanel.add(new JLabel("Number of groups: "), BorderLayout.LINE_START);
+		groupPanel.add(new JLabel("Number of groups: "), 
+				BorderLayout.LINE_START);
 		groupPanel.add(groupNumText, BorderLayout.CENTER);
 
 		threshPanel.setLayout(new BorderLayout());
@@ -389,9 +417,14 @@ public class MainGUI{
 		centerPanel.add(threshPanel, constraints);
 
 		constraints.fill = GridBagConstraints.NONE;
-		constraints.weighty = 0.75;
+		constraints.weighty = 0;
 		constraints.gridy = 4;
 		centerPanel.add(group, constraints);
+
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.weighty = 0.75;
+		constraints.gridy = 5;
+		centerPanel.add(loading, constraints);
 
 		aboutPanel.add(about);
 
@@ -408,6 +441,11 @@ public class MainGUI{
 
 
 	public static void main(String[] args){
-		new MainGUI();
+		SwingUtilities.invokeLater(new Runnable(){
+			@Override
+			public void run(){
+				new MainGUI();
+			}
+		});
 	}
 }
