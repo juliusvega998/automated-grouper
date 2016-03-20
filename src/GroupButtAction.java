@@ -35,7 +35,7 @@ public class GroupButtAction implements ActionListener{
 			return;
 		}
 
-		grouper = new GrouperUtil(main.getArr(), nGroups);
+		grouper = new GrouperUtil(main.getArr(), nGroups, main.isBlocGroup());
 
 		main.setWorker(new SwingWorker<Void, Void>(){
 			@Override
@@ -65,8 +65,7 @@ public class GroupButtAction implements ActionListener{
 			}
 
 			public void switchAllComp(boolean flag){
-				main.getGroupNumText().setEnabled(flag);
-				main.getGroup().setEnabled(flag);
+				main.switchComp(flag);
 				main.getFile().setEnabled(flag);
 				main.getAddPerson().setEnabled(flag);
 				main.getCancel().setEnabled(!flag);
