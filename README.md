@@ -1,9 +1,18 @@
 # Automated Grouper
-Author: Julius Jireh B. Vega
+Author: Julius Jireh B. Vega  
 
-To run: 
+##Prerequisites:
+* Java JRE 7  
+
+##To run:  
+No GUI
 ```
 $ java -jar AutomatedGrouperNoGUI.jar
 ```
 
-*Last Updated: March 18, 2016*
+With GUI
+```
+$ java -jar AutomatedGrouperGUI.jar
+```
+
+*Last Updated: March 20, 2016*
