@@ -129,25 +129,27 @@ public class GrouperUtil {
 
     private float aveAllGWA(Person[] list) {
         float sumGWA = 0.0f;
-        int maxBlocFreq = 0;
 
         for (Person p : list) {
             sumGWA += p.getGWA();
 
             this.bloclist.put(p.getBloc(), this.bloclist.get(p.getBloc())+1);
-            if(maxBlocFreq < this.bloclist.get(p.getBloc())){
-                maxBlocFreq = this.bloclist.get(p.getBloc());
-            }
+            
         }
-        return (sumGWA / list.length)*maxBlocFreq;
+        return sumGWA / list.length;
     }
 
     private float aveAllGWA(ArrayList<Person> list) {
         float sumGWA = 0.0f;
+        int maxBlocFreq = 0;
+
         for (Person p : list) {
             sumGWA += p.getGWA();
+            if(maxBlocFreq < this.bloclist.get(p.getBloc())){
+                maxBlocFreq = this.bloclist.get(p.getBloc());
+            }
         }
-        return sumGWA / list.size();
+        return (sumGWA / list.size())*maxBlocFreq;
     }
 
     private void initBloclist(){
