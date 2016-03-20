@@ -5,9 +5,6 @@ import actors.Person;
 import java.awt.*;
 import java.awt.event.*;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-
 import java.io.File;
 
 import javax.swing.*;
@@ -21,6 +18,7 @@ import java.util.ArrayList;
 import main.gui.UneditableTableModel;
 import main.gui.AddPersonFrame;
 import main.gui.LoadingThread;
+import main.gui.GroupButtAction;
 
 import utilities.FileUtil;
 import utilities.GrouperUtil;
@@ -86,62 +84,7 @@ public class MainGUI{
 			}
 		};
 
-		ActionListener groupAction = new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e){
-				final GrouperUtil grouper;
-				final LoadingThread loaderLoop = new LoadingThread(loading);
-
-				SwingWorker<Void, Void> worker;
-				int nGroups = 1;
-
-				try{
-					nGroups = Integer.parseInt(groupNumText.getText());
-				} catch(Exception ex) {
-					JOptionPane.showMessageDialog(frame, 
-							"Please enter the number of groups to make!");
-					return;
-				}
-
-				grouper = new GrouperUtil(arr, nGroups);
-
-				worker = new SwingWorker<Void, Void>(){
-					@Override
-					protected Void doInBackground() throws Exception{
-						frame.setTitle(WIN_TITLE + " - Finding best group...");
-						switchAllComp(false);
-						loaderLoop.start();
-						grouper.automatedGrouping();
-						return null;
-					}
-
-					@Override
-					public void done(){
-						frame.toFront();
-						frame.setTitle(WIN_TITLE);
-
-						loaderLoop.terminate();
-
-						bestGroup = grouper.getBestGroup();
-						switchAllComp(true);
-						
-						JOptionPane.showMessageDialog(frame, 
-								"Found best group!\n" + 
-								"Output saved to \"groupings.out\"");
-						setGroupModel(bestGroup);
-					}
-
-					public void switchAllComp(boolean flag){
-						groupNumText.setEnabled(flag);
-						group.setEnabled(flag);
-						file.setEnabled(flag);
-						addPerson.setEnabled(flag);
-					}
-				};
-
-				worker.execute();
-			}
-		};
+		GroupButtAction groupAction = new GroupButtAction(this);
 
 		ActionListener addPersonAction = new ActionListener(){
 			@Override
@@ -447,5 +390,41 @@ public class MainGUI{
 				new MainGUI();
 			}
 		});
+	}
+
+	public JTextField getGroupNumText(){
+		return this.groupNumText;
+	}
+
+	public JLabel getLoading(){
+		return this.loading;
+	}
+
+	public Person[] getArr(){
+		return this.arr;
+	}
+
+	public JFrame getFrame(){
+		return this.frame;
+	}
+
+	public ArrayList<ArrayList<Person>> getBestGroup(){
+		return this.bestGroup;
+	}
+
+	public void setBestGroup(ArrayList<ArrayList<Person>> group){
+		this.bestGroup = group;
+	}
+	
+	public JButton getFile(){
+		return this.file;
+	}
+
+	public JButton getGroup(){
+		return this.group;
+	}
+
+	public JButton getAddPerson(){
+		return this.addPerson;
 	}
 }
