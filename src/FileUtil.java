@@ -13,9 +13,11 @@ import java.util.ArrayList;
 import actors.Person;
 
 public abstract class FileUtil{
-	public static void printToFile(ArrayList<ArrayList<Person>> group, String outFile){
+	public static void printToFile(ArrayList<ArrayList<Person>> group, 
+            String outFile){
         try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outFile)));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(
+                    new File(outFile)));
 
             writer.write(Person.groupToString(group));
             writer.close();
@@ -51,7 +53,8 @@ public abstract class FileUtil{
         catch(IndexOutOfBoundsException i){
             i.printStackTrace();
             System.out.println("Wrong format on file " + file.getName() + ".");
-            JOptionPane.showMessageDialog(null, "Wrong format on file " + file.getName() + ".");
+            JOptionPane.showMessageDialog(null, "Wrong format on file " + 
+                    file.getName() + ".");
         }
         catch (Exception ex) {
             ex.printStackTrace();

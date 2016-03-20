@@ -52,7 +52,8 @@ public class GrouperUtil {
 
         Person[] combi = null;
         while((combi = perm.next()) != null) {
-            ArrayList<ArrayList<Person>> groups = new ArrayList<ArrayList<Person>>();
+            ArrayList<ArrayList<Person>> groups = 
+                new ArrayList<ArrayList<Person>>();
             ArrayList<Float> groupGWA = new ArrayList<Float>();
 
             clearBloc();
@@ -78,7 +79,8 @@ public class GrouperUtil {
         return bestGroup;
     }
 
-    private void aveGWAPerGroup(ArrayList<Float> groupGWA, ArrayList<ArrayList<Person>> groups) {
+    private void aveGWAPerGroup(ArrayList<Float> groupGWA, 
+            ArrayList<ArrayList<Person>> groups) {
         for (ArrayList<Person> g : groups) {
             groupGWA.add(this.aveAllGWA(g));
         }
@@ -88,22 +90,22 @@ public class GrouperUtil {
         new Thread(){
             @Override
             public void run(){
-                System.out.println(printGroup() + minDiff + "\n");
+                System.out.println(printGroup(bestGroup) + minDiff + "\n");
                 FileUtil.printToFile(bestGroup, outFile);
             }
-
-            private String printGroup(){
-                String s = "";
-                for(ArrayList<Person> group : bestGroup){
-                    for(Person p : group){
-                        s += p.getName() + " ";
-                    }
-                    s += "\n";
-                }
-
-                return s;
-            }
         }.start();
+    }
+
+    public String printGroup(ArrayList<ArrayList<Person>> group){
+        String s = "";
+        for(ArrayList<Person> g : group){
+            for(Person p : g){
+                s += p.getName() + " ";
+            }
+            s += "\n";
+        }
+
+        return s;
     }
 
     private float getAbsDiff(ArrayList<Float> groupGWA, float aveGWA) {
@@ -172,7 +174,8 @@ public class GrouperUtil {
         }
         catch (Exception e) {
             try{
-                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                BufferedWriter writer = new BufferedWriter(
+                        new FileWriter(file));
 
                 writer.write(Double.toString(THRESHOLD_DEFAULT));
                 writer.close();
@@ -187,5 +190,9 @@ public class GrouperUtil {
                 return 0.0;
             }
         }
+    }
+
+    public ArrayList<ArrayList<Person>> getBestGroup(){
+        return this.bestGroup;
     }
 }
