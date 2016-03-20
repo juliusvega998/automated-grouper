@@ -4,7 +4,7 @@ import javax.swing.table.DefaultTableModel;
 import java.util.Vector;
 
 public class UneditableTableModel extends DefaultTableModel{
-	public UneditableTableModel(Vector data, Vector column){
+	public UneditableTableModel(Vector<Vector<String>> data, Vector<String> column){
 		super(data, column);
 	}
 
