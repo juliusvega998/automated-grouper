@@ -27,7 +27,7 @@ public class Person {
 
     @Override
     public String toString() {
-        return this.name + " " + this.gwa;
+        return this.name + " " + this.bloc;
     }
 
     public static String groupToString(ArrayList<ArrayList<Person>> group){
