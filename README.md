@@ -10,10 +10,10 @@ $ java -jar AutomatedGrouperGUI.jar
 ```
 
 ##Format of input text file
-[Number of people to group]
-Person Name1,Grade,Bloc
-Person Name2,Grade,Bloc
-...
+[Number of people to group]  
+Person Name1,Grade,Bloc  
+Person Name2,Grade,Bloc  
+...  
 
 *For example:*
 ```
@@ -26,6 +26,6 @@ Jennifer,0.90,2
 ```
 
 ##Config file
-The jar file will create a config.cfg. This file include the threshold that a program should consider.  
+The jar file will create a config.cfg. Written in this file is the threshold that the program will use to group people.
 
 *Last Updated: March 20, 2016*
