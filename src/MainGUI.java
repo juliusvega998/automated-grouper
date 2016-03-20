@@ -42,6 +42,7 @@ public class MainGUI{
 	private JButton group;
 	private JButton about;
 	private JButton addPerson;
+	private JButton cancel;
 
 	private JLabel loading;
 
@@ -54,6 +55,7 @@ public class MainGUI{
 
 	private Person[] arr;
 	private ArrayList<ArrayList<Person>> bestGroup;
+	private SwingWorker<Void, Void> worker;
 
 	public MainGUI(){
 		ActionListener aboutAction = new ActionListener(){
@@ -61,7 +63,7 @@ public class MainGUI{
 			public void actionPerformed(ActionEvent e){
 				JOptionPane.showMessageDialog(frame, 
 						"Author: Julius Jireh B. Vega\n" + 
-						"Created for the ACSS-UPLB",
+						"Created for ACSS-UPLB",
 						"About us", JOptionPane.PLAIN_MESSAGE);
 			}
 		};
@@ -93,12 +95,20 @@ public class MainGUI{
 			}
 		};
 
+		ActionListener cancelAction = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				worker.cancel(true);
+			}
+		};
+
 		this.frame = new JFrame(WIN_TITLE);
 
 		this.file = new JButton("Input file...");
 		this.group = new JButton("Group them!");
 		this.about = new JButton("About us");
 		this.addPerson = new JButton("Add a Person");
+		this.cancel = new JButton("Cancel Search");
 
 		this.loading = new JLabel();
 
@@ -109,10 +119,12 @@ public class MainGUI{
 		this.personTable = null;
 		this.groupTable = null;
 
-		file.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
-		group.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
-		about.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
-		groupNumText.setPreferredSize(new Dimension(BUTT_WIDTH/2, BUTT_HEIGHT));
+		this.file.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
+		this.group.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
+		this.about.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
+		this.cancel.setPreferredSize(new Dimension(BUTT_WIDTH, BUTT_HEIGHT));
+		this.groupNumText.setPreferredSize(new Dimension(BUTT_WIDTH/2, 
+				BUTT_HEIGHT));
 
 		this.switchComp(false);
 
@@ -120,6 +132,7 @@ public class MainGUI{
 		this.file.addActionListener(fileAction);
 		this.group.addActionListener(groupAction);
 		this.addPerson.addActionListener(addPersonAction);
+		this.cancel.addActionListener(cancelAction);
 
 		this.frame.setSize(WIN_WIDTH, WIN_HEIGHT);
 		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -329,6 +342,8 @@ public class MainGUI{
 
 		GridBagConstraints constraints;
 
+		cancel.setEnabled(false);
+
 		panel.setLayout(new BorderLayout());
 		centerPanel.setLayout(new GridBagLayout());
 		constraints = new GridBagConstraints();
@@ -364,9 +379,13 @@ public class MainGUI{
 		constraints.gridy = 4;
 		centerPanel.add(group, constraints);
 
+		constraints.weighty = 0;
+		constraints.gridy = 5;
+		centerPanel.add(cancel, constraints);
+
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.weighty = 0.75;
-		constraints.gridy = 5;
+		constraints.gridy = 6;
 		centerPanel.add(loading, constraints);
 
 		aboutPanel.add(about);
@@ -381,6 +400,7 @@ public class MainGUI{
 		groupNumText.setEnabled(flag);
 		group.setEnabled(flag);
 	}
+
 
 
 	public static void main(String[] args){
@@ -412,10 +432,6 @@ public class MainGUI{
 		return this.bestGroup;
 	}
 
-	public void setBestGroup(ArrayList<ArrayList<Person>> group){
-		this.bestGroup = group;
-	}
-	
 	public JButton getFile(){
 		return this.file;
 	}
@@ -426,5 +442,21 @@ public class MainGUI{
 
 	public JButton getAddPerson(){
 		return this.addPerson;
+	}
+
+	public JButton getCancel(){
+		return this.cancel;
+	}
+
+	public SwingWorker<Void, Void> getWorker(){
+		return this.worker;
+	}
+	
+	public void setBestGroup(ArrayList<ArrayList<Person>> group){
+		this.bestGroup = group;
+	}
+
+	public void setWorker(SwingWorker<Void, Void> worker){
+		this.worker = worker;
 	}
 }

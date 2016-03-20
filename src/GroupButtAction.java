@@ -24,7 +24,7 @@ public class GroupButtAction implements ActionListener{
 		final GrouperUtil grouper;
 		final LoadingThread loaderLoop = new LoadingThread(main.getLoading());
 
-		SwingWorker<Void, Void> worker;
+		
 		int nGroups = 1;
 
 		try{
@@ -37,7 +37,7 @@ public class GroupButtAction implements ActionListener{
 
 		grouper = new GrouperUtil(main.getArr(), nGroups);
 
-		worker = new SwingWorker<Void, Void>(){
+		main.setWorker(new SwingWorker<Void, Void>(){
 			@Override
 			protected Void doInBackground() throws Exception{
 				main.getFrame().setTitle(MainGUI.WIN_TITLE + 
@@ -69,9 +69,10 @@ public class GroupButtAction implements ActionListener{
 				main.getGroup().setEnabled(flag);
 				main.getFile().setEnabled(flag);
 				main.getAddPerson().setEnabled(flag);
+				main.getCancel().setEnabled(!flag);
 			}
-		};
+		});
 
-		worker.execute();
+		main.getWorker().execute();
 	}
 }
