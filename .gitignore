@@ -1,4 +1,6 @@
 *.in
 *.txt
 *.out
+conig.cfg
+shell/*
 bin/*
