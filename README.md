@@ -5,14 +5,24 @@ Author: Julius Jireh B. Vega
 * Java JRE 7  
 
 ##To run:  
-No GUI
-```
-$ java -jar AutomatedGrouperNoGUI.jar
-```
-
-With GUI
 ```
 $ java -jar AutomatedGrouperGUI.jar
+```
+
+##Format of input text file
+[Number of people to group]
+Person Name1,Grade,Bloc
+Person Name2,Grade,Bloc
+...
+
+*For example:*
+```
+5
+Maria,0.95,1
+Joshua,0.98,2
+Mark Anthony,0.85,1
+John Paul,0.75,3
+Jennifer,0.90,2
 ```
 
 *Last Updated: March 20, 2016*
