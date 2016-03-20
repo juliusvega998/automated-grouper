@@ -15,33 +15,24 @@ import actors.Person;
 
 public class GrouperUtil {
     public static final String CONFIG_FILE = "config.cfg";
-    public static final String DEF_OUT_FILE = "groupings.out";
+    public static final String OUT_FILE = "groupings.out";
     public static final double THRESHOLD = getThreshold();
     public static final double THRESHOLD_DEFAULT = 0.1;
     
     private Person[] a;
     private int grouping;
     private float minDiff;
-    private String outFile;
     private ArrayList<ArrayList<Person>> bestGroup;
     private HashMap<String, Integer> bloclist;
+    private boolean isBlocGroup;
 
-    public GrouperUtil(Person[] arr, int n) {
+    public GrouperUtil(Person[] arr, int n, boolean isBlocGroup) {
         this.a = arr;
         this.grouping = n;
         this.minDiff = 999999999;
-        this.outFile = DEF_OUT_FILE;
         this.bestGroup = new ArrayList<ArrayList<Person>>();
-        this.initBloclist();
-    }
-
-    public GrouperUtil(Person[] arr, int n, String outFile) {
-        this.a = arr;
-        this.grouping = n;
-        this.minDiff = 999999999;
-        this.outFile = outFile;
-        this.bestGroup = new ArrayList<ArrayList<Person>>();
-        this.initBloclist();
+        this.isBlocGroup = isBlocGroup;
+        if(this.isBlocGroup) this.initBloclist();
     }
 
     public ArrayList<ArrayList<Person>> automatedGrouping() {
@@ -56,7 +47,7 @@ public class GrouperUtil {
                 new ArrayList<ArrayList<Person>>();
             ArrayList<Float> groupGWA = new ArrayList<Float>();
 
-            clearBloc();
+            if(this.isBlocGroup) clearBloc();
 
             intoGroups(groups, combi, this.grouping);
             aveGWAPerGroup(groupGWA, groups);
@@ -91,7 +82,7 @@ public class GrouperUtil {
             @Override
             public void run(){
                 System.out.println(printGroup(bestGroup) + minDiff + "\n");
-                FileUtil.printToFile(bestGroup, outFile);
+                FileUtil.printToFile(bestGroup, OUT_FILE);
             }
         }.start();
     }
@@ -132,23 +123,22 @@ public class GrouperUtil {
 
         for (Person p : list) {
             sumGWA += p.getGWA();
-
-            this.bloclist.put(p.getBloc(), this.bloclist.get(p.getBloc())+1);
-            
         }
         return sumGWA / list.length;
     }
 
     private float aveAllGWA(ArrayList<Person> list) {
         float sumGWA = 0.0f;
-        int maxBlocFreq = 0;
+        int maxBlocFreq = this.isBlocGroup? 0: 1;
 
         for (Person p : list) {
             sumGWA += p.getGWA();
-            if(maxBlocFreq < this.bloclist.get(p.getBloc())){
-                maxBlocFreq = this.bloclist.get(p.getBloc());
-            }
+
+            if(this.isBlocGroup)
+                if(maxBlocFreq < this.bloclist.get(p.getBloc()))
+                    maxBlocFreq = this.bloclist.get(p.getBloc());
         }
+
         return (sumGWA / list.size())*maxBlocFreq;
     }
 

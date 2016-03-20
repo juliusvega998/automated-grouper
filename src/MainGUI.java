@@ -43,6 +43,7 @@ public class MainGUI{
 	private JButton about;
 	private JButton addPerson;
 	private JButton cancel;
+	private JCheckBox isBloc;
 
 	private JLabel loading;
 
@@ -109,6 +110,8 @@ public class MainGUI{
 		this.about = new JButton("About us");
 		this.addPerson = new JButton("Add a Person");
 		this.cancel = new JButton("Cancel Search");
+
+		this.isBloc = new JCheckBox("Enable bloc grouping");
 
 		this.loading = new JLabel();
 
@@ -343,6 +346,7 @@ public class MainGUI{
 		GridBagConstraints constraints;
 
 		cancel.setEnabled(false);
+		isBloc.setEnabled(false);
 
 		panel.setLayout(new BorderLayout());
 		centerPanel.setLayout(new GridBagLayout());
@@ -374,18 +378,22 @@ public class MainGUI{
 		constraints.weighty = 0.0;
 		centerPanel.add(threshPanel, constraints);
 
+		constraints.gridy = 4;
+		constraints.weighty = 0.0;
+		centerPanel.add(isBloc, constraints);
+
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.weighty = 0;
-		constraints.gridy = 4;
+		constraints.gridy = 5;
 		centerPanel.add(group, constraints);
 
 		constraints.weighty = 0;
-		constraints.gridy = 5;
+		constraints.gridy = 6;
 		centerPanel.add(cancel, constraints);
 
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.weighty = 0.75;
-		constraints.gridy = 6;
+		constraints.gridy = 7;
 		centerPanel.add(loading, constraints);
 
 		aboutPanel.add(about);
@@ -397,8 +405,9 @@ public class MainGUI{
 	}
 
 	public void switchComp(boolean flag){
-		groupNumText.setEnabled(flag);
-		group.setEnabled(flag);
+		this.groupNumText.setEnabled(flag);
+		this.group.setEnabled(flag);
+		this.isBloc.setEnabled(flag);
 	}
 
 
@@ -450,6 +459,10 @@ public class MainGUI{
 
 	public SwingWorker<Void, Void> getWorker(){
 		return this.worker;
+	}
+
+	public boolean isBlocGroup(){
+		return this.isBloc.isSelected();
 	}
 	
 	public void setBestGroup(ArrayList<ArrayList<Person>> group){
