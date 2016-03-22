@@ -5,6 +5,8 @@ Author: Julius Jireh B. Vega
 * Java JRE 7 or higher  
 
 ##To run:  
+Download the [jar file](https://github.com/kintetsu998/automated-grouper/blob/master/Grouper.jar?raw=true)  
+Type this to the terminal:
 ```
 $ java -jar AutomatedGrouperGUI.jar
 ```
