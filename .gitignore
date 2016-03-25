@@ -1,6 +1,6 @@
 *.in
 *.txt
 *.out
-conig.cfg
+config.cfg
 shell/*
 bin/*

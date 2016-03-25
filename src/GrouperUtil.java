@@ -47,8 +47,6 @@ public class GrouperUtil {
                 new ArrayList<ArrayList<Person>>();
             ArrayList<Float> groupGWA = new ArrayList<Float>();
 
-            if(this.isBlocGroup) clearBloc();
-
             intoGroups(groups, combi, this.grouping);
             aveGWAPerGroup(groupGWA, groups);
 
@@ -134,10 +132,14 @@ public class GrouperUtil {
         for (Person p : list) {
             sumGWA += p.getGWA();
 
-            if(this.isBlocGroup)
+            if(this.isBlocGroup){
+                this.bloclist.put(p.getBloc(), this.bloclist.get(p.getBloc())+1);
                 if(maxBlocFreq < this.bloclist.get(p.getBloc()))
                     maxBlocFreq = this.bloclist.get(p.getBloc());
+            }
         }
+
+        if(this.isBlocGroup) clearBloc();
 
         return (sumGWA / list.size())*maxBlocFreq;
     }
